@@ -125,3 +125,35 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+env:
+  - name: OPENROUTER_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: llm-chatbot-secret
+        key: OPENROUTER_API_KEY
+  - name: API_BASE_URL
+    valueFrom:
+      secretKeyRef:
+        name: llm-chatbot-secret
+        key: API_BASE_URL
+  - name: LLM_MODEL
+    valueFrom:
+      secretKeyRef:
+        name: llm-chatbot-secret
+        key: LLM_MODEL
+  - name: API_TEMPERATURE
+    valueFrom:
+      secretKeyRef:
+        name: llm-chatbot-secret
+        key: API_TEMPERATURE
+  - name: API_MAX_TOKENS
+    valueFrom:
+      secretKeyRef:
+        name: llm-chatbot-secret
+        key: API_MAX_TOKENS
+  - name: SYSTEM_PROMPT
+    valueFrom:
+      secretKeyRef:
+        name: llm-chatbot-secret
+        key: SYSTEM_PROMPT
