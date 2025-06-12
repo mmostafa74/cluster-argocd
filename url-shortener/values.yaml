@@ -125,3 +125,55 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+env:
+  - name: PORT
+    valueFrom:
+      secretKeyRef:
+        name: url-shortener-secret
+        key: PORT
+  - name: GIN_MODE
+    valueFrom:
+      secretKeyRef:
+        name: url-shortener-secret
+        key: GIN_MODE
+  - name: DB_PATH
+    valueFrom:
+      secretKeyRef:
+        name: url-shortener-secret
+        key: DB_PATH
+  - name: DB_BACKUP_INTERVAL
+    valueFrom:
+      secretKeyRef:
+        name: url-shortener-secret
+        key: DB_BACKUP_INTERVAL
+  - name: MAX_CLICKS
+    valueFrom:
+      secretKeyRef:
+        name: url-shortener-secret
+        key: MAX_CLICKS
+  - name: BASE_URL
+    valueFrom:
+      secretKeyRef:
+        name: url-shortener-secret
+        key: BASE_URL
+  - name: LOG_LEVEL
+    valueFrom:
+      secretKeyRef:
+        name: url-shortener-secret
+        key: LOG_LEVEL
+  - name: ENABLE_CORS
+    valueFrom:
+      secretKeyRef:
+        name: url-shortener-secret
+        key: ENABLE_CORS
+  - name: HEALTH_CHECK_INTERVAL
+    valueFrom:
+      secretKeyRef:
+        name: url-shortener-secret
+        key: HEALTH_CHECK_INTERVAL
+  - name: CLEANUP_INTERVAL
+    valueFrom:
+      secretKeyRef:
+        name: url-shortener-secret
+        key: CLEANUP_INTERVAL
