@@ -4,7 +4,7 @@ metadata:
   name: monitoring
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-options: Replace=true
+    argocd.argoproj.io/sync-options: Replace=true,CreateNamespace=true
 spec:
   project: default
   source:
