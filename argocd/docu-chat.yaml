@@ -44,8 +44,11 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 10
         env:
-          secretName: docuchat-env
-          mountPath: /app/.env
+          - name: OPENROUTER_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: docuchat-secret
+                key: OPENROUTER_API_KEY
   destination:
     server: https://kubernetes.default.svc
     namespace: docuchat
