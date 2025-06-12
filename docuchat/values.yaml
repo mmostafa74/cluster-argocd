@@ -125,3 +125,10 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+env:
+  - name: OPENROUTER_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: docuchat-secret
+        key: OPENROUTER_API_KEY
