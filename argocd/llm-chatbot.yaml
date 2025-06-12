@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: llm-chatbot
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/mmostafa74/cluster-argocd.git
+    targetRevision: main
+    path: app
+    chart: llm-chatbot
+    helm:
+      valuesObject:
+        ingress:
+          enabled: true
+          className: "traefik"
+          annotations:
+            cert-manager.io/cluster-issuer: letsencrypt
+          hosts:
+            - host: llm-chatbot.resha.vaza.dev
+              paths:
+                - path: /
+                  pathType: Prefix
+          tls:
+            - secretName: llm-chatbot-tls
+              hosts:
+                - llm-chatbot.resha.vaza.dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: llm-chatbot
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

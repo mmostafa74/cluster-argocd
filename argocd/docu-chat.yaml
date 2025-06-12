@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: docuchat
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/mmostafa74/cluster-argocd.git
+    targetRevision: main
+    path: app
+    chart: docuchat
+    helm:
+      valuesObject:
+        ingress:
+          enabled: true
+          className: "traefik"
+          annotations:
+            cert-manager.io/cluster-issuer: letsencrypt
+          hosts:
+            - host: docuchat.resha.vaza.dev
+              paths:
+                - path: /
+                  pathType: Prefix
+          tls:
+            - secretName: docuchat-tls
+              hosts:
+                - docuchat.resha.vaza.dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: docuchat
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

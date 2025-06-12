@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: url-shortener
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/mmostafa74/cluster-argocd.git
+    targetRevision: main
+    path: app
+    chart: url-shortener
+    helm:
+      valuesObject:
+        ingress:
+          enabled: true
+          className: "traefik"
+          annotations:
+            cert-manager.io/cluster-issuer: letsencrypt
+          hosts:
+            - host: url-shortener.resha.vaza.dev
+              paths:
+                - path: /
+                  pathType: Prefix
+          tls:
+            - secretName: url-shortener-tls
+              hosts:
+                - url-shortener.resha.vaza.dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: url-shortener
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

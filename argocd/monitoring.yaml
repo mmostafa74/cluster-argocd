@@ -1,0 +1,113 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-options: Replace=true
+spec:
+  project: default
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    targetRevision: 69.7.4
+    chart: kube-prometheus-stack
+    helm:
+      valuesObject:
+        prometheusSpec:
+          serviceMonitorSelector: {}
+          podMonitorSelector: {}
+          additionalScrapeConfigs: |
+            - job_name: 'kubernetes-pods'
+              kubernetes_sd_configs:
+                - role: pod
+              relabel_configs:
+                - source_labels: [__meta_kubernetes_namespace]
+                  target_label: namespace
+                - source_labels: [__meta_kubernetes_pod_name]
+                  target_label: pod
+                - source_labels: [__meta_kubernetes_pod_container_name]
+                  target_label: container
+                - source_labels: [__meta_kubernetes_pod_label_app]
+                  target_label: app
+        additionalPrometheusRulesMap:
+          rule-name:
+            groups:
+              - name: pod-health
+                rules:
+                  - alert: KubernetesPodNotHealthy
+                    expr: sum by (namespace, pod) (kube_pod_status_phase{phase=~"Pending|Unknown|Failed"}) > 0
+                    for: 15m
+                    labels:
+                      severity: critical
+                    annotations:
+                      summary: "Kubernetes pod {{ $labels.namespace }}/{{ $labels.pod }} is not healthy"
+                      description: "Pod has been in a non-running state for longer than 15 minutes.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+              - name: pod-restart
+                rules:
+                  - alert: HighPodRestarts
+                    expr: increase(kube_pod_container_status_restarts_total[1h]) > 5
+                    for: 1m
+                    labels:
+                      severity: critical
+                    annotations:
+                      summary: "High pod restarts for pod {{ $labels.namespace }}/{{ $labels.pod }}"
+                      description: "Pod has been restarted more than 5 times in the last hour.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+        grafana:
+          enabled: true
+          existingSecret: grafana-admin-secret
+          userKey: admin-user
+          passwordKey: admin-password
+          ingress:
+            enabled: true
+            ingressClassName: traefik
+            annotations:
+              kubernetes.io/ingress.class: traefik
+              cert-manager.io/cluster-issuer: letsencrypt
+            hosts:
+              - grafana.resha.vaza.dev
+            tls:
+              - secretName: grafana-tls
+                hosts:
+                  - grafana.resha.vaza.dev
+            path: /
+        prometheus:
+          enabled: true
+          # ingress:
+          #   enabled: true
+          #   ingressClassName: traefik
+          #   annotations:
+          #     kubernetes.io/ingress.class: "traefik"
+          #     cert-manager.io/cluster-issuer: "letsencrypt"
+          #   hosts:
+          #     - prometheus.resha.vaza.dev
+          #   paths:
+          #     - /
+          #   pathType: Prefix
+          #   tls:
+          #     - secretName: prometheus-tls
+          #       hosts:
+          #         - prometheus.resha.vaza.dev
+        alertmanager:
+          enabled: true
+          # ingress:
+          #   enabled: true
+          #   ingressClassName: traefik
+          #   annotations:
+          #     kubernetes.io/ingress.class: "traefik"
+          #     cert-manager.io/cluster-issuer: "letsencrypt"
+          #   hosts:
+          #     - alert-manager.resha.vaza.dev
+          #   paths:
+          #     - /
+          #   pathType: Prefix
+          #   tls:
+          #     - secretName: alert-manager-tls
+          #       hosts:
+          #         - alert-manager.resha.vaza.dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
