@@ -54,9 +54,9 @@ spec:
                       description: "Pod has been restarted more than 5 times in the last hour.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
         grafana:
           enabled: true
-          existingSecret: grafana-admin-secret
-          userKey: admin-user
-          passwordKey: admin-password
+          envFrom:
+            - secretRef:
+                name: grafana-secret
           ingress:
             enabled: true
             ingressClassName: traefik
