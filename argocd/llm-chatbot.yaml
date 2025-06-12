@@ -8,8 +8,7 @@ spec:
   source:
     repoURL: https://github.com/mmostafa74/cluster-argocd.git
     targetRevision: main
-    path: app
-    chart: llm-chatbot
+    path: llm-chatbot
     helm:
       valuesObject:
         ingress:

@@ -8,8 +8,7 @@ spec:
   source:
     repoURL: https://github.com/mmostafa74/cluster-argocd.git
     targetRevision: main
-    path: app
-    chart: url-shortener
+    path: url-shortener
     helm:
       valuesObject:
         ingress:
