@@ -27,6 +27,22 @@ spec:
             - secretName: docuchat-tls
               hosts:
                 - docuchat.resha.vaza.dev
+        service:
+          type: ClusterIP
+          port: 8501
+        containerPort: 8501
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8501
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8501
+          initialDelaySeconds: 5
+          periodSeconds: 10
   destination:
     server: https://kubernetes.default.svc
     namespace: docuchat
